@@ -2,7 +2,7 @@
   "name": "transparent-units-toggle",
   "displayName": "Transparent Units (Toggle)",
   "author": "you",
-  "description": "F9 - переключить прозрачность юнитов зелёной ветки (mono/poly/mega/quad/oct), включая ячейку, оружие и сопла",
+  "description": "F9 to toggle transparency for green units (mono/poly/mega/quad/oct)",
   "version": "1.0",
   "minGameVersion": "154"
 }

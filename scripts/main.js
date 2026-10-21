@@ -1,5 +1,5 @@
-// Юниты зелёной (строительной/support) воздушной ветки.
-// hasWeaponSprite=true - у юнита есть именной файл оружия со стволом (poly, mega).
+// Units in the green (construction/support) aerial branch.
+// hasWeaponSprite=true -> the unit has a dedicated weapon file that includes a barrel (poly, mega).
 var targets = [
     { type: UnitTypes.mono, name: "mono", hasWeaponSprite: false },
     { type: UnitTypes.poly, name: "poly", hasWeaponSprite: true },
@@ -8,13 +8,13 @@ var targets = [
     { type: UnitTypes.oct,  name: "oct",  hasWeaponSprite: false }
 ];
 
-var visible = true; // true = обычные спрайты, false = прозрачные
-var blankRegion = null; // прозрачная заглушка для авто-обводок
+var visible = true; // true = standard sprites, false = transparent
+var blankRegion = null; // transparent placeholder for auto-outlines
 
 function findRegion(name) {
     var r = Core.atlas.find(name);
     if (r == null) {
-        Log.warn("[transparent-units] не найден спрайт: " + name);
+        Log.warn("[transparent-units] sprite not found: " + name);
     }
     return r;
 }
@@ -23,25 +23,25 @@ Events.on(ClientLoadEvent, function(e) {
     for (var i = 0; i < targets.length; i++) {
         var t = targets[i];
 
-        // основной корпус
+        // main body
         t.normalRegion = t.type.region;
         t.ghostRegion = findRegion(t.name + "-ghost");
 
-        // "ячейка"/кабина
+        // "cell"/cabin
         t.normalCell = t.type.cellRegion;
         t.ghostCell = findRegion(t.name + "-cell-ghost");
 
-        // авто-генерируемая обводка корпуса - отдельный регион, спрайта для неё нет,
-        // прячем через прозрачную заглушку
+        // Auto-generated hull outline - a separate region; there is no sprite for it,
+        // so we hide it using a transparent placeholder.
         t.normalOutline = t.type.outlineRegion;
 
-        // сопла двигателей - НЕ спрайт, рисуются процедурно через цвет.
-        // engineColor может быть null по умолчанию (тогда движок берёт цвет команды),
-        // поэтому запоминаем именно исходный объект (в т.ч. null), а не альфу.
+        // Engine nozzles are NOT sprites; they are rendered procedurally using color.
+        // `engineColor` can be `null` by default (in which case the engine uses the team color),
+        // so we store the original object itself (including `null`) rather than just the alpha value.
         t.normalEngineColor = t.type.engineColor;
         t.normalEngineInnerAlpha = t.type.engineColorInner.a;
 
-        // оружие (если есть именной спрайт)
+        // Weapons (if a specific sprite is defined)
         if (t.hasWeaponSprite) {
             t.ghostWeapon = findRegion(t.name + "-weapon-ghost");
             t.normalWeapons = [];
@@ -73,9 +73,9 @@ Events.run(Trigger.update, function() {
                 t.type.outlineRegion = visible ? t.normalOutline : blankRegion;
             }
 
-            // сопла: engineColor может быть null (тогда используется цвет команды),
-            // поэтому при скрытии подставляем новый прозрачный Color,
-            // а при показе возвращаем как было (в т.ч. обратно в null).
+            // Thrusters: `engineColor` can be `null` (in which case the team color is used);
+            // therefore, when hiding, we substitute a new transparent `Color`,
+            // and when showing, we restore the original value (including setting it back to `null` if applicable).
             t.type.engineColor = visible ? t.normalEngineColor : new Color(0, 0, 0, 0);
             t.type.engineColorInner.a = visible ? t.normalEngineInnerAlpha : 0;
 
@@ -91,6 +91,6 @@ Events.run(Trigger.update, function() {
             }
         }
 
-        Vars.ui.hudfrag.showToast(visible ? "Юниты: видимы" : "Юниты: прозрачны");
+        Vars.ui.hudfrag.showToast(visible ? "Units: visible" : "Units: transparent");
     }
 });
